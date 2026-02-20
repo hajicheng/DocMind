@@ -35,7 +35,7 @@ export default [
         expiresIn: 86400*7  // 有效时间
       })
 
-      console.log(token, "////////");
+      console.log(token, "////////") ;
       return {
         token,
         user: {

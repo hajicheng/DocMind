@@ -7,7 +7,7 @@ const posts = Mock.mock({
       brief: '@ctitle(20, 100)',
       totalComments: '@integer(1, 30)',
       totalLikes:'@integer(0, 500)',
-      publishedAt: '@datetime("yyyy-MM-dd HH:mm")',
+      publishedAt: '@datetime("yyyy-MM-dd HH:mm")' ,
       user: {
         id: '@integer(1, 100)',
         name: '@cname(2, 4)',
