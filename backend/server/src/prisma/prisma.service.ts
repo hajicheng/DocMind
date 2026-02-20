@@ -9,6 +9,6 @@ export class PrismaService
   implements OnModuleInit
 {
   async onModuleInit() { // 当模块初始化时调用，连接数据库
-    await this.$connect(); // 自动连接数据库
+    await this.$connect(); //自动连接数据库
   }
 }
