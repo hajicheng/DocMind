@@ -49,7 +49,7 @@ export default function Home() {
   }, []);
   return (
     <>
-      <div className="pt-4 px-4 pb-0 space-y-4">
+      <div className="pt-4 px-4 pb-0 space-y-4" >
         {banners && banners.length > 0 ? (
           <SlideShow slides={banners} />
         ) : (
