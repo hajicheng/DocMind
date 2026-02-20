@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/card'
 import {
   ScrollArea
-} from '@/components/ui/scroll-area';
+} from '@/components/ui/scroll-area' ;
 
 const SearchPage: React.FC = () => {
   const [keyword, setKeyword] = useState("");
