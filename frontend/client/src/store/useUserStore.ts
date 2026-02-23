@@ -26,13 +26,13 @@ export const useUserStore = create<UserState>()(
     user: null,
     isLogin: false,
     aiAvatar:async() => {
-        // coze title desc 生成应用的logo
         const name = get().user?.name;
-        const avatar = await getAiAvatar(name);
+        const res = await getAiAvatar(name);
+        console.log(res, '////');
         set({
           user: {
             ...get().user,
-            avatar,
+            avatar: res.data,
           }
         })
     },

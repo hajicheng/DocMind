@@ -26,6 +26,7 @@ export default function RouterConfig({children}:{children:React.ReactNode}){
           <Routes>
             <Route path="/login" element={<Login />}/>
             <Route path="/chat" element={<Chat />}/>
+            <Route path="/chat/:id" element={<Chat />}/>
             <Route path="/search" element={<Search />}/>
             <Route path="/" element={<MainLayout/>}>
               <Route path="" element={<Home />} />
