@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useUserStore } from '@/store/useUserStore';
+import { useChatHistory } from '@/store/useChatHistory';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -27,6 +28,7 @@ import Loading from '@/components/Loading';
 
 export default function Mine() {
   const { user, logout, aiAvatar } = useUserStore();
+  const { conversations } = useChatHistory();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -144,7 +146,7 @@ export default function Mine() {
           {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white mb-1">12</p>
+              <p className="text-2xl font-bold text-white mb-1">{conversations.length}</p>
               <p className="text-xs text-blue-100">咨询次数</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">

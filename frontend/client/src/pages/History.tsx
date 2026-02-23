@@ -1,9 +1,11 @@
-import { MessageSquare, SquarePen, Search } from 'lucide-react';
+import { SquarePen, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ChatItem from '../components/ChatItem';
+import { useChatHistory } from '../store/useChatHistory';
 
 export default function History() {
-  const conversations: any[] = [];
   const navigate = useNavigate();
+  const { conversations } = useChatHistory();
   
   return (
     <div className="bg-gray-50">
@@ -32,19 +34,14 @@ export default function History() {
         ) : (
           <div className="w-full px-4 space-y-2">
             {conversations.map((conversation) => (
-              <div
+              <ChatItem
                 key={conversation.id}
-                className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <div className="flex items-start gap-3" >
-                  <MessageSquare size={20} className="text-blue-500 mt-1" />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-800">{conversation.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">{conversation.lastMessage}</p>
-                    <span className="text-xs text-gray-400 mt-2 block">{conversation.time} </span>
-                  </div>
-                </div>
-              </div>
+                id={conversation.id}
+                title={conversation.title}
+                lastMessage={conversation.lastMessage}
+                time={conversation.time}
+                onClick={() => navigate(`/chat/${conversation.id}`)}
+              />
             ))}
           </div>
         )}

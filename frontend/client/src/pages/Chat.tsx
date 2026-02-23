@@ -2,8 +2,9 @@ import { useChatBot } from '@/hooks/useChatBot';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Send, Camera, Image, FileText } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useRef, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useRef, useEffect, useMemo } from 'react';
+import { useChatHistory } from '@/store/useChatHistory';
 
 // AI 头像组件
 const AIAvatar = () => (
@@ -27,6 +28,23 @@ const UserAvatar = () => (
 const formatTime = () => {
     const now = new Date();
     return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+};
+
+// 格式化相对时间
+const formatTimeAgo = (timestamp: number): string => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return '刚刚';
+    if (minutes < 60) return `${minutes}分钟前`;
+    if (hours < 24) return `${hours}小时前`;
+    if (days < 7) return `${days}天前`;
+    
+    const date = new Date(timestamp);
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
 // 欢迎消息组件
@@ -78,9 +96,32 @@ const Message = ({ role, content }: { role: string; content: string }) => {
 
 export default function Chat() {
     const navigate = useNavigate();
+    const { id } = useParams();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChatBot();
+    const { addConversation, updateConversation, getConversation } = useChatHistory();
+    const conversationIdRef = useRef<string>(id || `chat-${Date.now()}`);
+    
+    // 使用useMemo来避免每次渲染都重新计算
+    const initialMessages = useMemo(() => {
+        if (!id) return [];
+        const existingConversation = getConversation(id);
+        console.log('Chat页面 - URL参数ID:', id);
+        console.log('Chat页面 - 找到的历史对话:', existingConversation);
+        
+        const messages = existingConversation?.messages.map(m => ({
+            id: `${m.timestamp}`,
+            role: m.role,
+            content: m.content,
+        })) || [];
+        
+        console.log('Chat页面 - 初始消息:', messages);
+        return messages;
+    }, [id, getConversation]);
+    
+    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChatBot({
+        initialMessages,
+    });
     
     // 自动调整 textarea 高度
     useEffect(() => {
@@ -95,6 +136,39 @@ export default function Chat() {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isLoading]);
+
+    // 保存聊天记录到本地存储
+    useEffect(() => {
+        if (messages.length > 0) {
+            const conversationId = conversationIdRef.current;
+            const existingConversation = getConversation(conversationId);
+            
+            const chatMessages = messages.map(m => ({
+                role: m.role as 'user' | 'assistant',
+                content: m.content,
+                timestamp: Date.now(),
+            }));
+
+            if (existingConversation) {
+                updateConversation(conversationId, chatMessages);
+            } else {
+                const firstUserMessage = messages.find(m => m.role === 'user');
+                const title = firstUserMessage 
+                    ? firstUserMessage.content.slice(0, 20) + (firstUserMessage.content.length > 20 ? '...' : '')
+                    : '新对话';
+                
+                addConversation({
+                    id: conversationId,
+                    title,
+                    lastMessage: messages[messages.length - 1].content.slice(0, 50),
+                    time: formatTimeAgo(Date.now()),
+                    messages: chatMessages,
+                    createdAt: Date.now(),
+                    updatedAt: Date.now(),
+                });
+            }
+        }
+    }, [messages, addConversation, updateConversation, getConversation]);
 
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -124,7 +198,7 @@ export default function Chat() {
                         {messages.map((m, idx) => (
                             <Message key={idx} role={m.role} content={m.content} />
                         ))}
-                        {isLoading && <LoadingMessage />}
+                        {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && <LoadingMessage />}
                         <div ref={messagesEndRef} />
                     </div>
                 )}
