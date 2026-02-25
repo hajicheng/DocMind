@@ -84,7 +84,6 @@ DocMind/
 
 ## 快速开始
 
-
 ### 环境要求
 - Node.js >= 18
 - PostgreSQL 数据库
